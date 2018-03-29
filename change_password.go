@@ -27,7 +27,8 @@ type GetChangePasswordRequest interface {
 }
 
 type LiveGetChangePasswordRequest struct {
-
+	// Message auth
+	// Status bool
 }
 
 type PostChangePasswordRequest interface {
@@ -56,13 +57,24 @@ func (LiveGetChangePasswordRequest) FetchBytes(url string) ([]byte, error) {
 	}
 	if res.StatusCode != http.StatusOK {
     	fmt.Errorf("server didn’t respond 200 OK: %s", res.Status)
-    	return []byte(`{"message":res.StatusCode}`), errors.New(res.Status)
+    	return []byte(`{"message":false}`), errors.New(res.Status)
 
   	} 
+
 	body, readErr := ioutil.ReadAll(res.Body)
 	if readErr != nil {
 		log.Fatal(readErr)
 	}
+
+	var response map[string]interface{}
+	if mapErr := json.Unmarshal(body, &response); err != nil {
+        log.Fatal(mapErr)
+    }
+
+    if val, ok := response["status"]; (val!=true || !ok) {
+    	return []byte(`{"message":false}`), errors.New("Incoming data not ok")
+	}
+
 	return body, nil
 }
 
@@ -92,13 +104,21 @@ func GetChangePassword(getChangePasswordRequest GetChangePasswordRequest, url st
 	if err != nil {
 		return string(bodyBytes), err
 	}
+
 	authResult := auth{}
-
+	
 	jsonErr := json.Unmarshal(bodyBytes, &authResult)
-
+	
 	if jsonErr != nil {
 		log.Fatal(jsonErr)
 	}
+	
+	// resp_temp1 := &LiveGetChangePasswordRequest{
+	// 	Message: authResult,
+	// 	Status: true}
+	// resp, _ := json.Marshal(resp_temp1)
+
+	// return string(resp), nil
 	return authResult.Username, nil
 }
 

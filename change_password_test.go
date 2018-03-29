@@ -6,7 +6,7 @@ import (
 	"net/http"
   	"net/http/httptest"
 )
-
+/*
 type testWebRequest struct {
 
 }
@@ -21,13 +21,14 @@ func (testWebRequest) SendData(url string, data string) []byte {
 	return []byte(`{"status":true, "username": "Ardi Nusawan"}`)
 }
 
-// func TestGetChangePasswordPage(t *testing.T){
-// 	// status := GetChangePassword(LiveGetChangePasswordRequest{})
-// 	status := GetChangePassword(testWebRequest{}, "")
-// 	if status == "" {
-// 		t.Errorf("Data is nil, want username: string")
-// 	}
-// }
+func TestGetChangePasswordPage(t *testing.T){
+	// status := GetChangePassword(LiveGetChangePasswordRequest{})
+	status := GetChangePassword(testWebRequest{}, "")
+	if status == "" {
+		t.Errorf("Data is nil, want username: string")
+	}
+}
+*/
 
 func TestGetWrongResponseStatus(t *testing.T) {
   ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +46,7 @@ func TestGetWrongResponseStatus(t *testing.T) {
 func TestGetOK(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	  	w.WriteHeader(http.StatusOK)
-	  	w.Write([]byte(`{"status":true, "message":{"username": "Ardi Nusawan"}}`))
+	  	w.Write([]byte(`{"status":false, "username": "Ardi Nusawan"}`))
 		if r.Method != "GET" {
 		      t.Errorf("Expected ‘GET’ request, got ‘%s’", r.Method)
 		    }
@@ -62,6 +63,6 @@ func TestGetOK(t *testing.T) {
 	serverUrl := ts.URL
 	_ , err := GetChangePassword(LiveGetChangePasswordRequest{}, serverUrl)
 	if err != nil {
-		t.Errorf("Publish() returned an error: %s", err)
+		t.Errorf("TestGetOK returned an error: %s", err)
 	}
 }
